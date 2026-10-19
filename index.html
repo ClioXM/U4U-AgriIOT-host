@@ -13,6 +13,7 @@
 @media(max-width:580px){.shell{padding:0 16px 24px}.header{padding:20px 0}.brand{font-size:17px;gap:9px}.brand-mark{width:33px;height:33px}.connection{padding:7px 11px}.tabs{gap:28px;margin-bottom:22px}.settings-grid,.debug-grid{grid-template-columns:1fr}.device-clock{font-size:12px}.task-title{font-size:23px}.task-body{gap:17px}.task-status{flex-basis:100%}.tanks{width:100%;gap:28px;border-top:1px solid var(--line);padding-top:16px}.tank{flex:1}.plans{gap:12px}.plan-line strong{font-size:12px}.outputs{column-gap:22px}.output{padding:16px 0;gap:8px;min-height:79px}.output-info strong{font-size:12px}.page-heading{margin-bottom:17px}.page-heading h1{font-size:21px}.page-heading button{font-size:12px;padding:7px 11px}.settings-grid .wide{grid-column:auto}.notice,.alert{align-items:flex-start;gap:10px;padding:13px}.alert button,.notice button{font-size:12px;padding:6px 9px}.alert>div,.notice>span{min-width:0;overflow-wrap:anywhere}.form-actions .text-button{font-size:12px}.log-summary{font-size:10px;flex-wrap:wrap}.settings-clock{font-size:36px}.toast{bottom:18px}}
 .wifi-status{font-size:13px;color:var(--muted);overflow-wrap:anywhere}.wifi-fields{display:grid;grid-template-columns:1fr 1fr;column-gap:32px;margin-top:12px}.wifi-fields input,.wifi-fields select{width:65%;min-width:0}.password-control{display:flex;align-items:center;width:65%;border:1px solid #d5dfe3;border-radius:8px;background:#fff;overflow:hidden}.wifi-fields .password-control input{width:0;flex:1;border:0;border-radius:0}.password-control button{flex:none;padding:8px 10px;border:0;border-radius:0;background:transparent;color:var(--accent);font-size:12px}.password-control:focus-within{outline:3px solid #80c4bd;outline-offset:3px}.password-control input:focus-visible{outline:none}.form-message.success{color:var(--accent)}@media(max-width:580px){.wifi-fields{grid-template-columns:1fr}.wifi-fields input,.wifi-fields select,.password-control{width:67%}#scanWifi{font-size:12px;padding:7px 10px}}
 .settings-grid>.card{display:flex;flex-direction:column}.settings-grid .card-heading{justify-content:space-between}.settings-grid .field{margin:0;padding:14px 0;min-height:67px;border-top:1px solid var(--line)}.settings-grid .form-actions{margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}.settings-time{display:flex;flex-direction:column;justify-content:center;flex:1;min-height:134px;border-top:1px solid var(--line);padding:14px 0}.settings-grid .wifi-status{border-top:1px solid var(--line);padding:14px 0}.settings-grid .wifi-fields{margin-top:0}
+.discovery-panel{margin-top:18px;padding:15px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.discovery-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px}.discovery-heading button{font-size:12px;padding:6px 10px}.discovery-subnet{display:flex;align-items:center;gap:12px;margin-top:12px}.discovery-subnet label{margin:0;flex:none}.discovery-subnet input{flex:1;min-width:0;width:0}.discovery-status{font-size:12px;color:var(--muted);margin-top:10px;overflow-wrap:anywhere}.discovery-result{display:flex;gap:12px;align-items:center;padding:12px;margin-top:10px;border:1px solid #cce3dd;border-radius:10px;background:var(--soft)}.discovery-result>div{flex:1;min-width:0}.discovery-result strong{display:block;font-size:13px}.discovery-result small{display:block;font-size:11px;color:var(--muted);overflow-wrap:anywhere;margin-top:3px}.discovery-result button{flex:none;font-size:12px;padding:7px 11px}
 </style>
 </head>
 <body>
@@ -51,7 +52,7 @@
 </section>
 </main><footer><span>AgriIoT</span><span id="footerState">未连接设备</span></footer>
 </div>
-<dialog id="connectionDialog" aria-labelledby="connectionTitle"><div class="dialog-heading"><h2 id="connectionTitle">连接设备</h2><button id="closeConnection" class="close-dialog" aria-label="关闭">×</button></div><label for="transport">连接方式</label><select id="transport"><option value="wifi">Wi-Fi</option><option value="ble">蓝牙</option></select><div id="addressField"><label for="address">设备地址</label><input id="address" placeholder="192.168.1.100" spellcheck="false" autocomplete="off"></div><p id="connectionError" class="form-message" role="alert" hidden></p><div class="dialog-actions"><button id="disconnect" hidden>断开连接</button><button id="connect" class="primary">连接</button></div></dialog>
+<dialog id="connectionDialog" aria-labelledby="connectionTitle"><div class="dialog-heading"><h2 id="connectionTitle">连接设备</h2><button id="closeConnection" class="close-dialog" aria-label="关闭">×</button></div><label for="transport">连接方式</label><select id="transport"><option value="wifi">Wi-Fi</option><option value="ble">蓝牙</option></select><div id="addressField"><div class="discovery-panel" id="discoveryPanel"><div class="discovery-heading"><span>查找鱼缸设备</span><button id="findDevice" type="button">开始查找</button></div><div class="discovery-subnet"><label for="discoverySubnet">网段</label><input id="discoverySubnet" placeholder="例如 192.168.137" inputmode="decimal" spellcheck="false" autocomplete="off"></div><p id="discoveryStatus" class="discovery-status" role="status" hidden></p><div id="discoveryResults"></div></div><label for="address">设备地址</label><input id="address" placeholder="192.168.1.100" spellcheck="false" autocomplete="off"></div><p id="connectionError" class="form-message" role="alert" hidden></p><div class="dialog-actions"><button id="disconnect" hidden>断开连接</button><button id="connect" class="primary">连接</button></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
 'use strict';
@@ -145,6 +146,68 @@ const Client={tail:Promise.resolve(),pending:null,sequence:Number(storage.get('a
   cancel(reason){const p=this.pending;if(p){clearTimeout(p.timer);this.pending=null;p.reject(Error(reason));}}
 };
 
+// 局域网查找：仅检查指定内网的IPv4地址与现有/ws协议，不发送任何修改命令。
+const Discovery={epoch:0,searching:false,results:[],pending:new Set(),message:'',done:0,total:0,lastIp:'',
+  subnet(value){
+    const parts=value.trim().replace(/\/24$/,'').split('.');
+    if(![3,4].includes(parts.length)||parts.some(v=>!/^\d{1,3}$/.test(v)||Number(v)>255))throw Error('请输入网段，例如 192.168.137（电脑 IP 的前三段）');
+    const n=parts.map(Number),local=n[0]===10||n[0]===172&&n[1]>=16&&n[1]<=31||n[0]===192&&n[1]===168||n[0]===169&&n[1]===254;
+    if(!local)throw Error('请输入内网网段，例如 192.168.137');return n.slice(0,3).join('.');
+  },
+  ip(value){try{const text=value.trim(),url=new URL(/^wss?:\/\//i.test(text)?text:'ws://'+text);if(!/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname))return '';this.subnet(url.hostname);const host=Number(url.hostname.split('.')[3]);return host>0&&host<255?url.hostname:'';}catch{return '';}},
+  suggest(){if(!$('discoverySubnet').value){const ip=this.ip($('address').value)||this.lastIp||this.ip(storage.get('aq.address')||'');$('discoverySubnet').value=ip?this.subnet(ip):storage.get('aq.discoverySubnet')||'';}},
+  cancel(clear=false){this.epoch++;for(const stop of [...this.pending])stop();this.searching=false;if(clear){this.results=[];this.message='';this.done=this.total=0;}else if(this.total&&this.done<this.total)this.message='查找已停止 · 已检查 '+this.done+' / '+this.total;this.render();},
+  render(){
+    const available=$('transport').value==='wifi'&&!State.link&&!State.connecting;
+    $('discoveryPanel').hidden=!!State.link;$('findDevice').disabled=!available;
+    $('findDevice').textContent=this.searching?'停止查找':'开始查找';$('discoverySubnet').disabled=!available||this.searching;
+    $('discoveryStatus').hidden=!this.message;$('discoveryStatus').textContent=this.message;$('discoveryResults').replaceChildren();
+    for(const item of this.results){
+      const row=document.createElement('div');row.className='discovery-result';const info=document.createElement('div');
+      const name=document.createElement('strong');name.textContent='鱼缸设备';const detail=document.createElement('small');detail.textContent=item.ip;
+      const button=document.createElement('button');button.type='button';button.textContent='连接';button.disabled=!available;
+      button.addEventListener('click',()=>{if(State.link||State.connecting)return;$('address').value=item.ip;Actions.connect();});
+      info.append(name,detail);row.append(info,button);$('discoveryResults').append(row);
+    }
+  },
+  probe(ip){
+    return new Promise(resolve=>{
+      let socket;try{socket=new WebSocket('ws://'+ip+'/ws');}catch{resolve(null);return;}
+      socket.binaryType='arraybuffer';let finished=false,command=1,sequence,timer;
+      // 连接和应答分别计时；失败只结束本地址，不锁定控制界面或自动重发。
+      const finish=result=>{if(finished)return;finished=true;clearTimeout(timer);this.pending.delete(stop);socket.onopen=socket.onmessage=socket.onerror=socket.onclose=null;socket.close();resolve(result);};
+      const stop=()=>finish(null);this.pending.add(stop);timer=setTimeout(stop,1200);
+      const send=()=>{sequence=Client.next();const frame=Protocol.makeFrame(command,sequence);Journal.sent++;Journal.ordinal++;Journal.add('查找发送',ip+' · '+hex(frame));try{socket.send(frame);}catch{stop();}};
+      socket.onopen=()=>{if(finished)return;clearTimeout(timer);timer=setTimeout(stop,3000);send();};socket.onerror=socket.onclose=stop;
+      socket.onmessage=event=>{
+        if(finished||!(event.data instanceof ArrayBuffer))return;
+        const bytes=new Uint8Array(event.data),reply=Protocol.parseReply(bytes);
+        if(!reply||reply.seq!==sequence||reply.cmd!==command){Journal.dropped++;return;}
+        Journal.received++;Journal.add('查找接收',ip+' · '+hex(bytes));if(reply.result){stop();return;}
+        const d=reply.data;
+        if(command===1){if(d[6]>15||d[7]>15||d[8]>63||d[9]>15){stop();return;}command=2;send();return;}
+        // 同时验证状态和任务应答，只有匹配固定协议的端点才进入推荐列表。
+        if(d[0]>2||d[1]>5||d[2]>1||d[11]>1){stop();return;}
+        finish({ip});
+      };
+    });
+  },
+  async search(){
+    if(this.searching){this.cancel();return;}
+    if(State.link||State.connecting||$('transport').value!=='wifi'||!$('connectionDialog').open)return;
+    this.cancel(true);let subnet;
+    try{subnet=this.subnet($('discoverySubnet').value);}catch(error){this.message=error.message;this.render();return;}
+    $('discoverySubnet').value=subnet;storage.set('aq.discoverySubnet',subnet);
+    const epoch=this.epoch,addresses=[],preferred=[this.ip($('address').value),this.lastIp,this.ip(storage.get('aq.address')||'')];
+    for(const ip of [...preferred,...Array.from({length:254},(_,i)=>subnet+'.'+(i+1))])if(ip&&ip.startsWith(subnet+'.')&&!addresses.includes(ip))addresses.push(ip);
+    this.searching=true;this.done=0;this.total=addresses.length;this.message='正在查找 · 0 / '+this.total;this.render();let cursor=0;
+    // 最多8个不同地址同时探测；结果即时显示，用户可随时停止或点击连接。
+    const worker=async()=>{while(epoch===this.epoch&&cursor<addresses.length){const ip=addresses[cursor++],item=await this.probe(ip);if(epoch!==this.epoch)return;this.done++;if(item)this.results.push(item);this.message='正在查找 · '+this.done+' / '+this.total+' · 找到 '+this.results.length+' 台';this.render();}};
+    await Promise.allSettled(Array.from({length:8},worker));if(epoch!==this.epoch)return;
+    this.searching=false;this.message=this.results.length?'找到 '+this.results.length+' 台可连接设备':'未找到鱼缸设备，请核对网段；如浏览器询问，请允许本地网络访问。';this.render();
+  }
+};
+
 // 4. 设备操作：一轮读取完成后提交快照，草稿与设备配置分开保存。
 const Actions={
   async snapshot(full=true,recovery=false){
@@ -168,6 +231,7 @@ const Actions={
     for(let part=0;part<Math.ceil(d[1]/8);part++)bytes.set((await Client.request(0x06,[part+1],options)).slice(0,8),part*8);
     if(epoch!==State.epoch)throw Error('连接已改变');
     State.network={flags:d[0],ssid:new TextDecoder().decode(bytes.slice(0,d[1])),count:d[2],error:d[3],ip:Array.from(d.slice(4,8)).join('.'),generation:u16(d,8)};
+    if(State.network.flags&2)Discovery.lastIp=Discovery.ip(State.network.ip);
     Views.render();return State.network;
   },
   async waitNetwork(mask){
@@ -247,7 +311,7 @@ const Actions={
     State.lastFailure=null;await this.snapshot(true,true);if(error)throw error;
   },
   async connect(){
-    if(State.connecting||State.link)return;State.connecting=true;State.epoch++;resetDevice();Views.clearNotice();$('connectionError').hidden=true;Views.render();let link;
+    if(State.connecting||State.link)return;Discovery.cancel();State.connecting=true;State.epoch++;resetDevice();Views.clearNotice();$('connectionError').hidden=true;Views.render();let link;
     try{const mode=$('transport').value;link=mode==='wifi'?await Transport.wifi($('address').value):await Transport.ble();State.link=link;await this.snapshot(true);
       storage.set('aq.transport',mode);if(link.address){storage.set('aq.address',link.address);$('address').value=link.address;}
       Journal.add('连接',mode==='wifi'?link.address:link.name);$('connectionDialog').close();
@@ -278,7 +342,7 @@ const Views={toastTimer:null,
     $('connectionText').textContent=State.connecting?'正在连接':State.link?($('transport').value==='wifi'?'Wi-Fi 已连接':'蓝牙 已连接'):'连接设备';
     $('connect').disabled=State.connecting;$('connect').hidden=!!State.link;$('connect').textContent=State.connecting?'正在连接':'连接';
     $('disconnect').hidden=!State.link;$('transport').disabled=!!State.link||State.connecting;$('address').disabled=!!State.link||State.connecting;
-    $('addressField').hidden=$('transport').value==='ble';
+    $('addressField').hidden=$('transport').value==='ble';Discovery.render();
     for(const id of ['refresh','debugRefresh','recover'])$(id).disabled=!State.link||locked;
     $('startExchange').disabled=$('startTopup').disabled=!editable;
     $('stop').disabled=!known||locked||!t.kind;
@@ -346,8 +410,10 @@ const App={
       e.querySelector('button').addEventListener('click',()=>{const on=!(State.status.outputs&(1<<i));this.run(()=>Actions.output(i,on));});});
     levelNames.forEach((name,i)=>{const e=document.createElement('div');e.className='debug-row';e.innerHTML=`<span>${name} <code>TP0${i}</code></span><code id="raw${i}">--</code>`;$('rawLevels').append(e);});
     document.querySelectorAll('[data-page]').forEach(e=>e.addEventListener('click',()=>{Views.page(e.dataset.page);if(e.dataset.page!=='control'&&State.link&&!State.uncertain)this.run(async()=>{await Actions.snapshot(true);if(e.dataset.page==='settings')await Actions.networkInfo();});}));
-    $('connectionButton').addEventListener('click',()=>{$('connectionError').hidden=true;$('connectionDialog').showModal();});
-    $('closeConnection').addEventListener('click',()=>$('connectionDialog').close());$('transport').addEventListener('change',()=>Views.render());
+    $('connectionButton').addEventListener('click',()=>{$('connectionError').hidden=true;Discovery.suggest();$('connectionDialog').showModal();});
+    $('closeConnection').addEventListener('click',()=>{Discovery.cancel();$('connectionDialog').close();});$('connectionDialog').addEventListener('cancel',()=>Discovery.cancel());$('connectionDialog').addEventListener('close',()=>{if(!$('connectionDialog').open)Discovery.cancel();});$('transport').addEventListener('change',()=>{Discovery.cancel(true);Views.render();});
+    $('findDevice').addEventListener('click',()=>Discovery.search());
+    $('discoverySubnet').addEventListener('input',()=>Discovery.cancel(true));
     $('connect').addEventListener('click',()=>Actions.connect());
     $('disconnect').addEventListener('click',()=>{const link=State.link;if(link){Actions.drop(link,'已断开连接');link.close();}$('connectionDialog').close();});
     const refresh=()=>this.run(async()=>{await Actions.snapshot(true,true);if(!$('settings').hidden)await Actions.networkInfo();},{recovery:true});
