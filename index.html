@@ -52,7 +52,7 @@
 </section>
 </main><footer><span>AgriIoT</span><span id="footerState">未连接设备</span></footer>
 </div>
-<dialog id="connectionDialog" aria-labelledby="connectionTitle"><div class="dialog-heading"><h2 id="connectionTitle">连接设备</h2><button id="closeConnection" class="close-dialog" aria-label="关闭">×</button></div><label for="transport">连接方式</label><select id="transport"><option value="wifi">Wi-Fi</option><option value="ble">蓝牙</option></select><div id="addressField"><div class="discovery-panel" id="discoveryPanel"><div class="discovery-heading"><span>查找鱼缸设备</span><button id="findDevice" type="button">开始查找</button></div><div class="discovery-subnet"><label for="discoverySubnet">网段</label><input id="discoverySubnet" placeholder="例如 192.168.137" inputmode="decimal" spellcheck="false" autocomplete="off"></div><p id="discoveryStatus" class="discovery-status" role="status" hidden></p><div id="discoveryResults"></div></div><label for="address">设备地址</label><input id="address" placeholder="192.168.1.100" spellcheck="false" autocomplete="off"></div><p id="connectionError" class="form-message" role="alert" hidden></p><div class="dialog-actions"><button id="disconnect" hidden>断开连接</button><button id="connect" class="primary">连接</button></div></dialog>
+<dialog id="connectionDialog" aria-labelledby="connectionTitle"><div class="dialog-heading"><h2 id="connectionTitle">连接设备</h2><button id="closeConnection" class="close-dialog" aria-label="关闭">×</button></div><label for="transport">连接方式</label><select id="transport"><option value="wifi">Wi-Fi</option><option value="ble">蓝牙</option></select><div id="addressField"><div class="discovery-panel" id="discoveryPanel"><div class="discovery-heading"><span>查找鱼缸设备</span><button id="findDevice" type="button">开始查找</button></div><div class="discovery-subnet"><label for="discoverySubnet">查找范围</label><input id="discoverySubnet" placeholder="本机 Wi-Fi IP 或 IP 前三段" inputmode="decimal" spellcheck="false" autocomplete="off"></div><p id="discoveryStatus" class="discovery-status" role="status" hidden></p><div id="discoveryResults"></div></div><label for="address">设备地址</label><input id="address" placeholder="192.168.1.100" spellcheck="false" autocomplete="off"></div><p id="connectionError" class="form-message" role="alert" hidden></p><div class="dialog-actions"><button id="disconnect" hidden>断开连接</button><button id="connect" class="primary">连接</button></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
 'use strict';
@@ -109,7 +109,8 @@ const Transport={
     catch(error){socket.close();throw error;}
   },
   async ble(){
-    if(!window.isSecureContext||!navigator.bluetooth)throw Error('请使用支持蓝牙的桌面Chrome或Edge打开此文件');
+    if(!window.isSecureContext)throw Error('蓝牙需要安全页面，请通过 HTTPS 网址打开上位机');
+    if(typeof navigator.bluetooth?.requestDevice!=='function')throw Error('当前浏览器未提供网页蓝牙接口。Android 请用 Chrome 直接打开；iPhone Safari 不支持网页蓝牙');
     const device=await navigator.bluetooth.requestDevice({filters:[{services:[this.SERVICE]}],optionalServices:[this.SERVICE]});
     const link={name:device.name||'蓝牙',close:()=>device.gatt.disconnect()};device.addEventListener('gattserverdisconnected',()=>Actions.drop(link,'蓝牙连接已断开'));
     try{const gatt=await device.gatt.connect();const service=await gatt.getPrimaryService(this.SERVICE);const rx=await service.getCharacteristic(this.RX),tx=await service.getCharacteristic(this.TX);
@@ -147,15 +148,20 @@ const Client={tail:Promise.resolve(),pending:null,sequence:Number(storage.get('a
 };
 
 // 局域网查找：仅检查指定内网的IPv4地址与现有/ws协议，不发送任何修改命令。
-const Discovery={epoch:0,searching:false,results:[],pending:new Set(),message:'',done:0,total:0,lastIp:'',
+const Discovery={epoch:0,searching:false,results:[],pending:new Set(),message:'',done:0,total:0,lastIp:'',suggestedSubnet:'',
   subnet(value){
     const parts=value.trim().replace(/\/24$/,'').split('.');
-    if(![3,4].includes(parts.length)||parts.some(v=>!/^\d{1,3}$/.test(v)||Number(v)>255))throw Error('请输入网段，例如 192.168.137（电脑 IP 的前三段）');
+    if(![3,4].includes(parts.length)||parts.some(v=>!/^\d{1,3}$/.test(v)||Number(v)>255))throw Error('请输入当前手机或电脑的 Wi-Fi IP，也可只填 IP 前三段');
     const n=parts.map(Number),local=n[0]===10||n[0]===172&&n[1]>=16&&n[1]<=31||n[0]===192&&n[1]===168||n[0]===169&&n[1]===254;
-    if(!local)throw Error('请输入内网网段，例如 192.168.137');return n.slice(0,3).join('.');
+    if(!local)throw Error('请输入当前 Wi-Fi 的内网 IP 或 IP 前三段');return n.slice(0,3).join('.');
   },
   ip(value){try{const text=value.trim(),url=new URL(/^wss?:\/\//i.test(text)?text:'ws://'+text);if(!/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname))return '';this.subnet(url.hostname);const host=Number(url.hostname.split('.')[3]);return host>0&&host<255?url.hostname:'';}catch{return '';}},
-  suggest(){if(!$('discoverySubnet').value){const ip=this.ip($('address').value)||this.lastIp||this.ip(storage.get('aq.address')||'');$('discoverySubnet').value=ip?this.subnet(ip):storage.get('aq.discoverySubnet')||'';}},
+  suggest(){
+    const field=$('discoverySubnet');if(this.searching||field.value&&field.value!==this.suggestedSubnet)return;
+    // 自动建议优先使用最近读到的设备IP；手动填写的查找范围保持原样。
+    const ip=this.lastIp||this.ip($('address').value)||this.ip(storage.get('aq.address')||'');
+    field.value=ip?this.subnet(ip):storage.get('aq.discoverySubnet')||'';this.suggestedSubnet=field.value;
+  },
   cancel(clear=false){this.epoch++;for(const stop of [...this.pending])stop();this.searching=false;if(clear){this.results=[];this.message='';this.done=this.total=0;}else if(this.total&&this.done<this.total)this.message='查找已停止 · 已检查 '+this.done+' / '+this.total;this.render();},
   render(){
     const available=$('transport').value==='wifi'&&!State.link&&!State.connecting;
@@ -200,9 +206,9 @@ const Discovery={epoch:0,searching:false,results:[],pending:new Set(),message:''
     $('discoverySubnet').value=subnet;storage.set('aq.discoverySubnet',subnet);
     const epoch=this.epoch,addresses=[],preferred=[this.ip($('address').value),this.lastIp,this.ip(storage.get('aq.address')||'')];
     for(const ip of [...preferred,...Array.from({length:254},(_,i)=>subnet+'.'+(i+1))])if(ip&&ip.startsWith(subnet+'.')&&!addresses.includes(ip))addresses.push(ip);
-    this.searching=true;this.done=0;this.total=addresses.length;this.message='正在查找 · 0 / '+this.total;this.render();let cursor=0;
+    this.searching=true;this.done=0;this.total=addresses.length;this.message='正在查找 '+subnet+'.1–254 · 0 / '+this.total;this.render();let cursor=0;
     // 最多8个不同地址同时探测；结果即时显示，用户可随时停止或点击连接。
-    const worker=async()=>{while(epoch===this.epoch&&cursor<addresses.length){const ip=addresses[cursor++],item=await this.probe(ip);if(epoch!==this.epoch)return;this.done++;if(item)this.results.push(item);this.message='正在查找 · '+this.done+' / '+this.total+' · 找到 '+this.results.length+' 台';this.render();}};
+    const worker=async()=>{while(epoch===this.epoch&&cursor<addresses.length){const ip=addresses[cursor++],item=await this.probe(ip);if(epoch!==this.epoch)return;this.done++;if(item)this.results.push(item);this.message='正在查找 '+subnet+'.1–254 · '+this.done+' / '+this.total+' · 找到 '+this.results.length+' 台';this.render();}};
     await Promise.allSettled(Array.from({length:8},worker));if(epoch!==this.epoch)return;
     this.searching=false;this.message=this.results.length?'找到 '+this.results.length+' 台可连接设备':'未找到鱼缸设备，请核对网段；如浏览器询问，请允许本地网络访问。';this.render();
   }
@@ -313,7 +319,7 @@ const Actions={
   async connect(){
     if(State.connecting||State.link)return;Discovery.cancel();State.connecting=true;State.epoch++;resetDevice();Views.clearNotice();$('connectionError').hidden=true;Views.render();let link;
     try{const mode=$('transport').value;link=mode==='wifi'?await Transport.wifi($('address').value):await Transport.ble();State.link=link;await this.snapshot(true);
-      storage.set('aq.transport',mode);if(link.address){storage.set('aq.address',link.address);$('address').value=link.address;}
+      storage.set('aq.transport',mode);if(link.address){storage.set('aq.address',link.address);$('address').value=link.address;Discovery.lastIp=Discovery.ip(link.address);}
       Journal.add('连接',mode==='wifi'?link.address:link.name);$('connectionDialog').close();
     }catch(error){if(State.link===link&&link){State.link=null;State.epoch++;Client.cancel('连接失败');resetDevice();}link?.close();$('connectionError').textContent=error.message;$('connectionError').hidden=false;Journal.add('错误',error.message);}
     finally{State.connecting=false;Views.render();}
@@ -414,6 +420,7 @@ const App={
     $('closeConnection').addEventListener('click',()=>{Discovery.cancel();$('connectionDialog').close();});$('connectionDialog').addEventListener('cancel',()=>Discovery.cancel());$('connectionDialog').addEventListener('close',()=>{if(!$('connectionDialog').open)Discovery.cancel();});$('transport').addEventListener('change',()=>{Discovery.cancel(true);Views.render();});
     $('findDevice').addEventListener('click',()=>Discovery.search());
     $('discoverySubnet').addEventListener('input',()=>Discovery.cancel(true));
+    $('address').addEventListener('input',()=>{Discovery.lastIp='';Discovery.suggest();});
     $('connect').addEventListener('click',()=>Actions.connect());
     $('disconnect').addEventListener('click',()=>{const link=State.link;if(link){Actions.drop(link,'已断开连接');link.close();}$('connectionDialog').close();});
     const refresh=()=>this.run(async()=>{await Actions.snapshot(true,true);if(!$('settings').hidden)await Actions.networkInfo();},{recovery:true});
