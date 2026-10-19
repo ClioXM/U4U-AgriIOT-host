@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>鱼缸控制 · AgriIoT</title>
+<style>
+/* 基础样式与布局；使用本机字体，不加载外部资源。 */
+:root{--bg:#f5f7f9;--paper:#fff;--ink:#1d343d;--muted:#75858c;--line:#e4eaed;--accent:#167e80;--soft:#eaf5f3;--red:#b64444;--amber:#956424;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "Segoe UI","Microsoft YaHei",sans-serif}button,input,select{font:inherit}button{cursor:pointer;color:inherit;border:1px solid var(--line);border-radius:9px;background:#fff;padding:9px 15px;transition:background .15s,border-color .15s}button:hover:enabled{background:#f3f8f7;border-color:#b8d6d0}button:disabled{cursor:default;opacity:.42}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #80c4bd;outline-offset:3px}input,select{color:var(--ink);border:1px solid #d5dfe3;border-radius:8px;background:#fff;padding:9px 11px;min-width:0;max-width:100%}input:disabled{background:#f5f7f8;color:#87959a}input[type=number]{width:100px}input[type=time]{width:135px}h1,h2,h3,p{margin:0}h1{font-size:23px;font-weight:650;letter-spacing:.3px}h2{font-size:16px;font-weight:650}h3{font-size:14px}small,.muted{color:var(--muted)}[hidden]{display:none!important}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.primary:hover:enabled{background:#106b6d;border-color:#106b6d}.danger{color:var(--red);border-color:#e7c8c8}.text-button{border:0;background:transparent;color:var(--accent);padding:5px 0}.shell{max-width:1160px;margin:auto;padding:0 28px 40px}.header{display:flex;justify-content:space-between;align-items:center;padding:27px 0 23px}.brand{display:flex;gap:12px;align-items:center;font-size:19px;font-weight:650}.brand-mark{width:38px;height:38px;background:var(--accent);color:#fff;border-radius:12px;display:grid;place-items:center}.brand-mark svg{width:25px;height:25px}.connection{display:flex;align-items:center;gap:9px;border-radius:24px;padding:8px 14px;font-size:12px}.dot{width:7px;height:7px;flex:none;border-radius:50%;background:#a3afb5}.connected .dot{background:#249986}.connected{border-color:#cce3dd}.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:28px}.tabs button{position:relative;background:none;border:0;border-radius:0;padding:0 3px 15px;color:var(--muted);font-weight:600}.tabs button.active{color:var(--accent)}.tabs button.active:after{content:"";height:3px;position:absolute;left:0;right:0;bottom:-1px;background:var(--accent);border-radius:3px}.page-heading{display:flex;justify-content:space-between;align-items:center;margin:0 0 20px;gap:12px}.page-heading p{font-size:12px;color:var(--muted);margin-top:5px}.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:23px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:25px 0 12px}.summary{display:grid;grid-template-columns:.8fr 1.7fr;gap:18px}.climate{display:flex;flex-direction:column;min-height:230px}.eyebrow{font-size:12px;color:var(--muted)}.temperature{display:flex;align-items:center;flex:1;font-size:62px;letter-spacing:-2px;font-weight:550;line-height:1.25;margin:20px 0}.temperature span.unit{font-size:22px;font-weight:400;letter-spacing:0;margin-left:8px;color:#5b777c}.device-clock{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:15px;font-size:12px;color:var(--muted)}.device-clock time{font-variant-numeric:tabular-nums}.card-heading{display:flex;align-items:center;gap:10px;margin-bottom:12px}.state-pill{font-size:11px;border-radius:20px;background:#f0f4f5;padding:3px 9px;color:var(--muted)}.state-pill.active{background:var(--soft);color:var(--accent)}.task-title{font-size:25px;font-weight:600}.task-detail{min-height:22px;color:var(--muted);font-size:13px;margin-top:4px}.counts{display:flex;gap:28px;margin:14px 0;font-size:12px;color:var(--muted)}.counts strong{font-size:18px;margin-left:7px;color:var(--ink);font-weight:550}.actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}.task-actions{margin-top:20px}.task-body{display:flex;flex-wrap:wrap;align-items:center;gap:20px}.task-status{flex:1;min-width:160px}.plans{display:grid;grid-template-columns:1fr 1fr;gap:18px;border-top:1px solid var(--line);margin-top:20px;padding-top:15px}.plan-line span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.plan-line strong{font-size:13px;font-variant-numeric:tabular-nums;font-weight:550}.output-card{margin-top:18px}.outputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:32px}.output{padding:17px 0;display:flex;align-items:center;gap:12px;min-height:80px;border-top:1px solid var(--line)}.output-info{flex:1;min-width:0}.output-info strong{font-size:13px;font-weight:600;display:block}.output-info small{font-size:11px;color:var(--muted)}.output.on .output-info small{color:var(--accent)}.switch{border:0;background:#d7e0e4;width:41px;height:24px;flex:none;border-radius:20px;position:relative;padding:0}.switch:after{content:"";width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;left:3px;top:3px;box-shadow:0 1px 3px #1533331a;transition:transform .15s}.switch[aria-checked=true]{background:var(--accent)}.switch[aria-checked=true]:after{transform:translateX(17px)}.switch:hover:enabled{background:#bdcdd2}.switch[aria-checked=true]:hover:enabled{background:#106b6d}.tanks{display:flex;gap:24px;flex-wrap:wrap}.tank h3{font-size:12px;font-weight:600;margin-bottom:10px}.tank-reading{display:flex;gap:10px}.tank-gauge{position:relative;overflow:hidden;width:22px;height:80px;flex:none;background:#f0f4f5;border:1px solid #dbe5e7;border-radius:6px}.tank-fill{position:absolute;bottom:0;left:0;right:0;background:#68b9ae;height:0}.tank-gauge[data-level=middle] .tank-fill{height:50%}.tank-gauge[data-level=full] .tank-fill{height:100%}.tank-gauge[data-level=unknown]{background:repeating-linear-gradient(135deg,#f1f4f5,#f1f4f5 5px,#e5ebee 5px,#e5ebee 6px)}.tank-gauge[data-level=conflict]{border-color:#dba4a4;background:#fbe9e7}.tank-gauge[data-level=conflict]:after{content:"!";position:absolute;inset:0;display:grid;place-items:center;color:var(--red);font-weight:650}.tank-levels{display:flex;flex-direction:column;justify-content:space-between;padding:1px 0}.level{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}.level i{height:6px;width:6px;border-radius:50%;background:#dfe6e9}.level.wet{color:var(--accent)}.level.wet i{background:#439e98}.tank-state{font-size:11px;color:var(--muted);margin-top:5px}.tank:has([data-level=conflict]) .tank-state{color:var(--red)}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.form-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.dirty{font-size:11px;color:var(--amber)}.field{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:14px 0}.field>label{font-size:13px}.field .input-unit{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.form-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:23px;flex-wrap:wrap}.form-message{font-size:12px;color:var(--red);margin-top:12px;overflow-wrap:anywhere}.settings-grid .wide{grid-column:1/-1}.clock-card{display:flex;flex-direction:column}.settings-clock{display:block;font-size:38px;line-height:1.3;font-weight:550;letter-spacing:1px;font-variant-numeric:tabular-nums}.settings-date{color:var(--muted);font-size:13px;margin-top:5px}.clock-card .form-actions{margin-top:auto;padding-top:23px}.notice{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 17px;border-radius:11px;border:1px solid #e8caca;background:#fff3f2;color:#9e4141;margin-bottom:18px;font-size:13px}.notice button{flex:none}.alert{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px 20px;border-radius:12px;background:#fff7e9;border:1px solid #ead9b9;color:#8a602a;margin-bottom:18px}.alert.fatal{background:#fff1ef;border-color:#edc9c2;color:#a3443c}.alert p{font-size:12px;margin-top:3px}.alert strong{font-weight:600}.debug-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.debug-row{display:flex;justify-content:space-between;gap:15px;padding:9px 0;font-size:12px;border-bottom:1px solid #edf1f3}.debug-row:last-child{border:0}.debug-row code{font:12px Consolas,monospace}.debug-grid .field input[type=number]{width:95px}.log-card{margin-top:18px}.log{font:11px/1.8 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;background:#f6f8fa;border:1px solid var(--line);border-radius:9px;padding:16px;height:310px;margin:15px 0 0;color:#536b76}.log-tools{display:flex;gap:8px;flex-wrap:wrap}.log-tools button{font-size:12px;padding:6px 11px}.log-summary{display:flex;justify-content:space-between;gap:12px;margin-top:12px;font-size:11px;color:var(--muted)}.debug-clock{margin-top:18px}.debug-clock .actions{margin-top:16px}.debug-clock input{flex:1;min-width:180px}.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);border-radius:12px;padding:11px 20px;background:#214d48;color:white;font-size:13px;box-shadow:0 6px 24px #183d4820;z-index:20;max-width:calc(100% - 30px);text-align:center}.stale{opacity:.65}dialog{border:1px solid var(--line);border-radius:18px;padding:25px;width:420px;max-width:calc(100% - 30px);color:var(--ink);box-shadow:0 20px 90px #17374526}dialog::backdrop{background:#18323c55;backdrop-filter:blur(3px)}.dialog-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.close-dialog{border:0;padding:2px 7px;font-size:23px;color:var(--muted)}dialog label{display:block;font-size:12px;color:var(--muted);margin:16px 0 6px}dialog input,dialog select{width:100%}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px}.empty-note{font-size:12px;color:var(--muted);padding:10px 0}footer{display:flex;justify-content:space-between;font-size:11px;color:#92a0a6;margin-top:30px}
+@media(max-width:800px){.outputs{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:1fr}.climate{min-height:190px}.card{padding:19px}.shell{padding:0 20px 30px}.temperature{font-size:52px;margin:8px 0}}
+@media(max-width:580px){.shell{padding:0 16px 24px}.header{padding:20px 0}.brand{font-size:17px;gap:9px}.brand-mark{width:33px;height:33px}.connection{padding:7px 11px}.tabs{gap:28px;margin-bottom:22px}.settings-grid,.debug-grid{grid-template-columns:1fr}.device-clock{font-size:12px}.task-title{font-size:23px}.task-body{gap:17px}.task-status{flex-basis:100%}.tanks{width:100%;gap:28px;border-top:1px solid var(--line);padding-top:16px}.tank{flex:1}.plans{gap:12px}.plan-line strong{font-size:12px}.outputs{column-gap:22px}.output{padding:16px 0;gap:8px;min-height:79px}.output-info strong{font-size:12px}.page-heading{margin-bottom:17px}.page-heading h1{font-size:21px}.page-heading button{font-size:12px;padding:7px 11px}.settings-grid .wide{grid-column:auto}.notice,.alert{align-items:flex-start;gap:10px;padding:13px}.alert button,.notice button{font-size:12px;padding:6px 9px}.alert>div,.notice>span{min-width:0;overflow-wrap:anywhere}.form-actions .text-button{font-size:12px}.log-summary{font-size:10px;flex-wrap:wrap}.settings-clock{font-size:36px}.toast{bottom:18px}}
+.wifi-status{font-size:13px;color:var(--muted);overflow-wrap:anywhere}.wifi-fields{display:grid;grid-template-columns:1fr 1fr;column-gap:32px;margin-top:12px}.wifi-fields input,.wifi-fields select{width:65%;min-width:0}.password-control{display:flex;align-items:center;width:65%;border:1px solid #d5dfe3;border-radius:8px;background:#fff;overflow:hidden}.wifi-fields .password-control input{width:0;flex:1;border:0;border-radius:0}.password-control button{flex:none;padding:8px 10px;border:0;border-radius:0;background:transparent;color:var(--accent);font-size:12px}.password-control:focus-within{outline:3px solid #80c4bd;outline-offset:3px}.password-control input:focus-visible{outline:none}.form-message.success{color:var(--accent)}@media(max-width:580px){.wifi-fields{grid-template-columns:1fr}.wifi-fields input,.wifi-fields select,.password-control{width:67%}#scanWifi{font-size:12px;padding:7px 10px}}
+.settings-grid>.card{display:flex;flex-direction:column}.settings-grid .card-heading{justify-content:space-between}.settings-grid .field{margin:0;padding:14px 0;min-height:67px;border-top:1px solid var(--line)}.settings-grid .form-actions{margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}.settings-time{display:flex;flex-direction:column;justify-content:center;flex:1;min-height:134px;border-top:1px solid var(--line);padding:14px 0}.settings-grid .wifi-status{border-top:1px solid var(--line);padding:14px 0}.settings-grid .wifi-fields{margin-top:0}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="header"><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12c4-6 11-6 17 0l6-4v13l-6-4c-6 6-13 6-17 0"/><circle cx="10" cy="14" r="1" fill="currentColor" stroke="none"/></svg></span>鱼缸控制</div><button id="connectionButton" class="connection" aria-haspopup="dialog"><span class="dot"></span><span id="connectionText">连接设备</span></button></header>
+<nav class="tabs" aria-label="主要页面"><button class="active" data-page="control" aria-current="page">控制</button><button data-page="settings">设置</button><button data-page="debug">调试</button></nav>
+<div id="notice" class="notice" role="alert" hidden><span id="noticeText"></span><button id="recover" hidden>重新读取</button><button id="dismissNotice" aria-label="关闭提示">×</button></div>
+<div id="alertPanel" class="alert" role="status" hidden><div><strong id="alertTitle"></strong><p id="alertDetail"></p></div><button id="clearFault" class="danger" hidden>清除异常</button></div>
+<main>
+<section id="control" class="page">
+<div class="page-heading"><div><h1>设备概览</h1><p id="freshness">尚未连接</p></div><button id="refresh">刷新状态</button></div>
+<div id="liveData">
+<div class="summary"><section class="card climate"><div class="card-heading"><h2>当前水温</h2></div><div class="temperature"><span id="temperature">--</span><span id="temperatureUnit" class="unit" hidden>°C</span></div><div class="device-clock"><span id="clockDate">设备时间</span><time id="clock">--:--:--</time></div></section>
+<section class="card" id="waterTask"><div class="card-heading"><h2>水路任务</h2><span id="taskSource" class="state-pill" hidden></span></div>
+<div class="task-body"><div class="task-status"><div id="taskName" class="task-title">未连接</div><p id="stage" class="task-detail">--</p><div id="counts" class="counts" hidden><div id="drainProgress">排水<strong id="drainCount">--</strong></div><div>补水<strong id="fillCount">--</strong></div></div></div>
+<div class="tanks"><div class="tank"><h3>排水箱</h3><div class="tank-reading"><div id="tankGauge0" class="tank-gauge" data-level="unknown" role="img" aria-label="排水箱：未知"><div class="tank-fill"></div></div><div class="tank-levels"><span class="level" id="level0"><i></i><span>高位 --</span></span><span class="level" id="level1"><i></i><span>低位 --</span></span></div></div><p class="tank-state" id="tankState0">未知</p></div><div class="tank"><h3>补水箱</h3><div class="tank-reading"><div id="tankGauge1" class="tank-gauge" data-level="unknown" role="img" aria-label="补水箱：未知"><div class="tank-fill"></div></div><div class="tank-levels"><span class="level" id="level2"><i></i><span>高位 --</span></span><span class="level" id="level3"><i></i><span>低位 --</span></span></div></div><p class="tank-state" id="tankState1">未知</p></div></div></div>
+<div class="actions task-actions"><button id="startExchange" class="primary">开始换水</button><button id="startTopup">开始补水</button><button id="stop" class="danger">停止任务</button></div>
+<div class="plans"><div class="plan-line"><span>下次换水</span><strong id="exchangeNext">--</strong></div><div class="plan-line"><span>下次补水</span><strong id="topupNext">--</strong></div></div></section></div>
+<section class="card output-card"><div class="card-heading"><h2>设备开关</h2></div><div id="outputs" class="outputs"></div></section>
+</div>
+</section>
+<section id="settings" class="page" hidden>
+<div class="page-heading"><h1>设备设置</h1></div><div class="settings-grid">
+<form class="card" id="exchangeForm" data-group="exchange"><div class="card-heading"><h2>自动换水</h2><span class="dirty" data-dirty="exchange" hidden>未保存</span></div><div class="field"><label for="exchangeTime">执行时间</label><input id="exchangeTime" type="time" required></div><div class="field"><label for="exchangeDays">间隔</label><span class="input-unit"><input id="exchangeDays" type="number" min="1" max="65535" required>天</span></div><div class="field"><label for="exchangeDrain">排水箱数</label><input id="exchangeDrain" type="number" min="1" max="65535" required></div><div class="field"><label for="exchangeFill">补水箱数</label><input id="exchangeFill" type="number" min="1" max="65535" required></div><div class="form-actions"><button class="primary">保存</button><button type="button" id="resetExchange" class="text-button">从今天重新计周期</button></div><p class="form-message" role="alert" hidden></p></form>
+<form class="card" id="topupForm" data-group="topup"><div class="card-heading"><h2>自动补水</h2><span class="dirty" data-dirty="topup" hidden>未保存</span></div><div class="field"><label for="topupTime">执行时间</label><input id="topupTime" type="time" required></div><div class="field"><label for="topupDays">间隔</label><span class="input-unit"><input id="topupDays" type="number" min="1" max="65535" required>天</span></div><div class="field"><label for="topupFill">补水箱数</label><input id="topupFill" type="number" min="1" max="65535" required></div><div class="form-actions"><button class="primary">保存</button><button type="button" id="resetTopup" class="text-button">从今天重新计周期</button></div><p class="form-message" role="alert" hidden></p></form>
+<form class="card" id="lightForm" data-group="light"><div class="card-heading"><h2>鱼缸灯</h2><span class="dirty" data-dirty="light" hidden>未保存</span></div><div class="field"><label for="lightOn">开启时间</label><input id="lightOn" type="time" required></div><div class="field"><label for="lightOff">关闭时间</label><input id="lightOff" type="time" required></div><div class="form-actions"><button class="primary">保存</button></div><p class="form-message" role="alert" hidden></p></form>
+<section class="card clock-card"><div class="card-heading"><h2>设备时间</h2></div><div class="settings-time"><time id="settingsClock" class="settings-clock">--:--:--</time><p id="settingsDate" class="settings-date">--</p></div><div class="form-actions"><button id="syncRtc" class="primary">与电脑同步</button></div></section>
+<form class="card wide" id="wifiForm"><div class="card-heading"><h2>Wi-Fi 网络</h2><button type="button" id="scanWifi">扫描附近网络</button></div><p id="wifiStatus" class="wifi-status">尚未连接设备</p><div class="wifi-fields"><div class="field"><label for="wifiNetworks">附近网络</label><select id="wifiNetworks"><option value="">手动输入网络名称</option></select></div><div class="field" id="wifiSsidField"><label for="wifiSsid">网络名称</label><input id="wifiSsid" type="text" maxlength="32" autocomplete="off" required></div><div class="field"><label for="wifiPassword">密码</label><span class="password-control"><input id="wifiPassword" type="password" maxlength="63" autocomplete="new-password" placeholder="开放网络留空"><button id="toggleWifiPassword" type="button" aria-controls="wifiPassword" aria-pressed="false">显示</button></span></div></div><div class="form-actions"><button id="saveWifi" class="primary">保存并连接</button></div><p class="form-message" role="status" hidden></p></form>
+</div></section>
+<section id="debug" class="page" hidden>
+<div class="page-heading"><h1>基础调试</h1><button id="debugRefresh">读取设备</button></div><div class="debug-grid">
+<section class="card"><div class="form-heading"><h2>输入状态</h2><span id="levelValidity" class="eyebrow">--</span></div><div id="rawLevels"></div><div class="debug-row"><span>按键</span><span id="keys">--</span></div><div class="debug-row"><span>状态灯</span><span id="statusLed">--</span></div><div class="debug-row"><span>过滤泵恢复目标</span><span id="filterTarget">--</span></div></section>
+<form class="card" id="timeoutForm" data-group="timeout"><div class="form-heading"><h2>阶段超时</h2><span class="dirty" data-dirty="timeout" hidden>未保存</span></div><div class="field"><label for="timeout0">排水箱注水</label><span class="input-unit"><input id="timeout0" type="number" min="1" max="65535" required>秒</span></div><div class="field"><label for="timeout1">排水箱排空</label><span class="input-unit"><input id="timeout1" type="number" min="1" max="65535" required>秒</span></div><div class="field"><label for="timeout2">补水箱注水</label><span class="input-unit"><input id="timeout2" type="number" min="1" max="65535" required>秒</span></div><div class="field"><label for="timeout3">补水箱抽空</label><span class="input-unit"><input id="timeout3" type="number" min="1" max="65535" required>秒</span></div><div class="form-actions"><button class="primary">保存</button></div><p class="form-message" role="alert" hidden></p></form>
+</div><form class="card debug-clock" id="rtcForm"><h2>手动校时</h2><div class="actions"><input id="rtcInput" type="datetime-local" min="2000-01-01T00:00:00" max="2099-12-31T23:59:59" step="1" required aria-label="北京时间"><button>设置时间</button></div><p class="form-message" role="alert" hidden></p></form>
+<section class="card log-card"><div class="section-title" style="margin-top:0"><h2>通信记录</h2><div class="log-tools"><button id="retry">重发超时原帧</button><button id="exportLog">导出</button><button id="clearLog">清空</button></div></div><pre id="log" class="log" aria-label="通信记录"></pre><div class="log-summary"><span id="counters">发送 0 · 接收 0 · 丢弃 0</span><span id="lastSeq">序号 --</span></div></section>
+</section>
+</main><footer><span>AgriIoT</span><span id="footerState">未连接设备</span></footer>
+</div>
+<dialog id="connectionDialog" aria-labelledby="connectionTitle"><div class="dialog-heading"><h2 id="connectionTitle">连接设备</h2><button id="closeConnection" class="close-dialog" aria-label="关闭">×</button></div><label for="transport">连接方式</label><select id="transport"><option value="wifi">Wi-Fi</option><option value="ble">蓝牙</option></select><div id="addressField"><label for="address">设备地址</label><input id="address" placeholder="192.168.1.100" spellcheck="false" autocomplete="off"></div><p id="connectionError" class="form-message" role="alert" hidden></p><div class="dialog-actions"><button id="disconnect" hidden>断开连接</button><button id="connect" class="primary">连接</button></div></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script>
+'use strict';
+
+// 1. 协议与时间：固定20字节，线上时间为UTC秒，界面使用北京时间。
+const $ = id => document.getElementById(id);
+const Protocol = (() => {
+  const u16=(a,o=0)=>a[o]|a[o+1]<<8;
+  const u32=(a,o=0)=>(u16(a,o)+u16(a,o+2)*65536)>>>0;
+  const put16=(a,o,n)=>{a[o]=n;a[o+1]=n>>>8;};
+  const put32=(a,o,n)=>{put16(a,o,n);put16(a,o+2,n>>>16);};
+  function crc16(a,n=a.length){let c=65535;for(let i=0;i<n;i++){c^=a[i];for(let j=0;j<8;j++)c=(c>>>1)^((c&1)?0xa001:0);}return c;}
+  function makeFrame(cmd,seq,data=[]){const a=new Uint8Array(20);a.set([165,90,cmd]);put16(a,3,seq);a.set(data,5);put16(a,18,crc16(a,18));return a;}
+  function parseReply(a){if(a.length!==20||a[0]!==165||a[1]!==90||!(a[2]&128)||u16(a,18)!==crc16(a,18))return null;return {cmd:a[2]&127,seq:u16(a,3),result:a[5],data:a.slice(6,18)};}
+  const pad=n=>String(n).padStart(2,'0');
+  function beijingParts(utc){const d=new Date((utc+28800)*1000);return {date:`${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`,time:`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`};}
+  function rtcValue(s){if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(s))throw Error('请输入有效日期和时间');const full=s.length===16?s+':00':s;const utc=Date.parse(full+'+08:00')/1000;const p=beijingParts(utc);if(!Number.isInteger(utc)||utc<946656000||utc>=4102416000||p.date+'T'+p.time!==full)throw Error('请输入2000—2099年的有效日期');return utc;}
+  return {u16,u32,put16,put32,crc16,makeFrame,parseReply,beijingParts,rtcValue,pad};
+})();
+const {u16,u32,put16,put32}=Protocol;
+const outputNames=['过滤泵','加水泵','排水入口阀','排水出口阀','补水入口阀','鱼缸灯'];
+const levelNames=['排水箱高位','排水箱低位','补水箱高位','补水箱低位'];
+const faultNames=['','输出回读异常','水位信号异常','排水箱注水超时','排水箱排空超时','补水箱注水超时','补水箱抽空超时','时钟通信异常','温度通信异常','配置存储异常','屏幕通信异常'];
+const warningNames=['屏幕通信异常','温度通信异常'];
+const stageNames=['','排出排水箱残水','排水箱注水','排水箱排水','补水箱注水','向鱼缸加水'];
+const resultNames=['','参数无效','设备正忙，请稍后操作','请先处理设备异常','设备不支持此操作','设备操作失败'];
+const waterFault=code=>code>=2&&code<=6;
+const storage={get(key){try{return localStorage.getItem(key);}catch{return null;}},set(key,value){try{localStorage.setItem(key,value);}catch{}}};
+const hex=a=>Array.from(a,b=>b.toString(16).padStart(2,'0')).join(' ');
+function dateText(utc){if(!utc)return '--';const p=Protocol.beijingParts(utc);return p.date+' '+p.time.slice(0,5);}
+function minuteText(n){return Protocol.pad(Math.floor(n/60))+':'+Protocol.pad(n%60);}
+function numberInput(id){const n=Number($(id).value);if(!Number.isInteger(n)||n<1||n>65535)throw Error('请输入1—65535之间的整数');return n;}
+function minuteInput(id){const s=$(id).value;if(!/^\d{2}:\d{2}$/.test(s))throw Error('请选择时间');const [h,m]=s.split(':').map(Number);if(h>23||m>59)throw Error('时间无效');return h*60+m;}
+
+// 2. 设备快照、编辑草稿和日志。断开连接后不保留设备状态。
+const State={link:null,epoch:0,connecting:false,busy:false,refreshPromise:null,uncertain:false,loaded:false,status:null,task:null,config:{},network:null,networkWork:null,dirty:new Set(),lastFailure:null,updated:0};
+const Journal={lines:[],sent:0,received:0,dropped:0,ordinal:0,
+  add(kind,text){const stamp=new Date().toLocaleTimeString('zh-CN',{hour12:false});this.lines.push(`${stamp} ${kind}  ${text}`);if(this.lines.length>300)this.lines.shift();this.render();},
+  render(){$('log').textContent=this.lines.join('\n');$('log').scrollTop=$('log').scrollHeight;$('counters').textContent=`发送 ${this.sent} · 接收 ${this.received} · 丢弃 ${this.dropped}`;}
+};
+function showWifiPassword(show){$('wifiPassword').type=show?'text':'password';$('toggleWifiPassword').textContent=show?'隐藏':'显示';$('toggleWifiPassword').setAttribute('aria-pressed',String(show));}
+function resetDevice(){State.status=State.task=null;State.config={};State.network=null;State.networkWork=null;$('wifiPassword').value='';showWifiPassword(false);$('wifiSsid').value='';$('wifiNetworks').replaceChildren(new Option('手动输入网络名称',''));State.loaded=false;State.uncertain=false;State.lastFailure=null;State.updated=0;State.dirty.clear();document.querySelectorAll('[data-group] input').forEach(e=>e.value='');document.querySelectorAll('.form-message').forEach(e=>e.hidden=true);}
+
+// 3. 传输：WebSocket与BLE只负责连接和收发，同用一个请求队列。
+const Transport={
+  SERVICE:'6e400001-b5a3-f393-e0a9-e50e24dcca9e',RX:'6e400002-b5a3-f393-e0a9-e50e24dcca9e',TX:'6e400003-b5a3-f393-e0a9-e50e24dcca9e',
+  async wifi(address){
+    let text=address.trim();if(!text)throw Error('请输入设备地址');if(!/^wss?:\/\//i.test(text))text='ws://'+text;
+    const url=new URL(text);if(!['ws:','wss:'].includes(url.protocol))throw Error('设备地址无效');if(url.pathname==='/')url.pathname='/ws';
+    const socket=new WebSocket(url.href);socket.binaryType='arraybuffer';
+    const link={name:'Wi-Fi',address:url.href,close:()=>socket.close(),send:frame=>{if(socket.readyState!==WebSocket.OPEN)throw Error('连接已关闭');socket.send(frame);}};
+    socket.onmessage=event=>{if(event.data instanceof ArrayBuffer)Client.receive(new Uint8Array(event.data),link);else{Journal.dropped++;Journal.add('丢弃','非二进制数据');}};
+    try{await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{socket.close();reject(Error('连接超时，请检查设备地址'));},5000);socket.onopen=()=>{clearTimeout(timer);resolve();};socket.onerror=()=>{clearTimeout(timer);reject(Error('连接失败，请检查网络和设备地址'));};socket.onclose=()=>{clearTimeout(timer);reject(Error('连接已关闭'));Actions.drop(link,'设备连接已断开');};});return link;}
+    catch(error){socket.close();throw error;}
+  },
+  async ble(){
+    if(!window.isSecureContext||!navigator.bluetooth)throw Error('请使用支持蓝牙的桌面Chrome或Edge打开此文件');
+    const device=await navigator.bluetooth.requestDevice({filters:[{services:[this.SERVICE]}],optionalServices:[this.SERVICE]});
+    const link={name:device.name||'蓝牙',close:()=>device.gatt.disconnect()};device.addEventListener('gattserverdisconnected',()=>Actions.drop(link,'蓝牙连接已断开'));
+    try{const gatt=await device.gatt.connect();const service=await gatt.getPrimaryService(this.SERVICE);const rx=await service.getCharacteristic(this.RX),tx=await service.getCharacteristic(this.TX);
+      tx.addEventListener('characteristicvaluechanged',event=>{const v=event.target.value;Client.receive(new Uint8Array(v.buffer,v.byteOffset,v.byteLength).slice(),link);});
+      await tx.startNotifications();link.send=frame=>rx.writeValueWithResponse(frame);return link;
+    }catch(error){link.close();throw error;}
+  }
+};
+const Client={tail:Promise.resolve(),pending:null,sequence:Number(storage.get('aq.nextSequence'))||0,
+  next(){const saved=storage.get('aq.nextSequence'),n=Number(saved);if(saved!==null&&Number.isInteger(n)&&n>=0&&n<=65535)this.sequence=n;const value=this.sequence;this.sequence=(value+1)&65535;storage.set('aq.nextSequence',String(this.sequence));return value;},
+  request(cmd,data=[],options={}){
+    const frame=options.original||Protocol.makeFrame(cmd,this.next(),data),source=State.link;
+    const run=()=>{if(!source||source!==State.link)throw Error('连接已改变，请重新读取');if(State.uncertain&&!options.recovery&&!options.original)throw Error('请先重新读取设备状态');return this.send(frame,source,options.timeout??3000);};
+    const promise=this.tail.then(run,run);this.tail=promise.catch(()=>{});return promise;
+  },
+  remember(frame,ordinal){if(!State.lastFailure)State.lastFailure={frame:frame.slice(),ordinal};State.uncertain=true;Views.render();},
+  send(frame,source,timeout){
+    const ordinal=++Journal.ordinal;
+    if(State.lastFailure&&ordinal-State.lastFailure.ordinal>=16){State.lastFailure=null;Journal.add('记录','原帧重发窗口已结束');}
+    return new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>{if(this.pending?.source!==source||this.pending?.seq!==u16(frame,3))return;this.pending=null;this.remember(frame,ordinal);reject(Error('未收到设备回应，操作结果未确认'));},timeout);
+      this.pending={resolve,reject,timer,source,seq:u16(frame,3),cmd:frame[2]};Journal.sent++;$('lastSeq').textContent='序号 '+u16(frame,3);Journal.add('发送',frame[2]===0x21?'Wi-Fi 配置（内容已隐藏） · 序号 '+u16(frame,3):hex(frame));
+      Promise.resolve().then(()=>source.send(frame)).catch(error=>{const p=this.pending;if(!p||p.source!==source||p.seq!==u16(frame,3))return;clearTimeout(p.timer);this.pending=null;this.remember(frame,ordinal);p.reject(Error('发送失败，操作结果未确认'));});
+    });
+  },
+  receive(bytes,source){
+    if(source!==State.link)return;const r=Protocol.parseReply(bytes);if(!r){Journal.dropped++;Journal.add('丢弃',hex(bytes));return;}
+    Journal.received++;Journal.add('接收',hex(bytes));const p=this.pending;
+    if(!p||source!==p.source||r.seq!==p.seq)return;
+    clearTimeout(p.timer);this.pending=null;
+    if(r.cmd!==p.cmd){State.uncertain=true;Views.render();p.reject(Error('设备应答不匹配，请重新读取'));}
+    else if(r.result)p.reject(Error(resultNames[r.result]||'设备返回错误 '+r.result));else p.resolve(r.data);
+  },
+  cancel(reason){const p=this.pending;if(p){clearTimeout(p.timer);this.pending=null;p.reject(Error(reason));}}
+};
+
+// 4. 设备操作：一轮读取完成后提交快照，草稿与设备配置分开保存。
+const Actions={
+  async snapshot(full=true,recovery=false){
+    const epoch=State.epoch,options={recovery};
+    const d=await Client.request(1,[],options),t=await Client.request(2,[],options);
+    const config={...State.config};
+    for(const [name,kind] of [['exchange',1],['topup',2]]){const a=await Client.request(3,[kind],options);config[name]={minute:u16(a),days:u16(a,2),drain:u16(a,4),fill:u16(a,6),next:u32(a,8)};}
+    if(full){const l=await Client.request(4,[],options);config.light={on:u16(l),off:u16(l,2)};const a=await Client.request(5,[],options);config.timeout=[0,2,4,6].map(i=>u16(a,i));}
+    if(epoch!==State.epoch)throw Error('连接已改变');
+    State.status={now:u32(d),temperature:(u16(d,4)<<16>>16)/100,raw:d[6],levels:d[7],outputs:d[8],keys:d[9],fault:d[10],flags:d[11],warnings:(d[11]>>3)&3};
+    State.task={kind:t[0],stage:t[1],source:t[2],drainDone:u16(t,3),drainTarget:u16(t,5),fillDone:u16(t,7),fillTarget:u16(t,9),filterTarget:t[11]};
+    State.config=config;State.updated=Date.now();if(full)State.loaded=true;
+    if(recovery){State.uncertain=false;Views.clearNotice();}
+    Views.render();
+  },
+  guard(lamp=false){if(!State.loaded||State.uncertain)throw Error('请先读取设备状态');if(State.task.kind)throw Error('任务运行中，只能查询和停止');if(State.status.fault&&!(lamp&&waterFault(State.status.fault)))throw Error('请先处理设备异常');},
+  networkGuard(){if(!State.loaded||State.uncertain)throw Error('请先读取设备状态');if(State.task.kind)throw Error('任务运行中，只能查询和停止');},
+  async networkInfo(){
+    const options=State.networkWork==='scan'?{timeout:10000}:{};
+    const epoch=State.epoch,d=await Client.request(0x06,[],options),bytes=new Uint8Array(32);
+    for(let part=0;part<Math.ceil(d[1]/8);part++)bytes.set((await Client.request(0x06,[part+1],options)).slice(0,8),part*8);
+    if(epoch!==State.epoch)throw Error('连接已改变');
+    State.network={flags:d[0],ssid:new TextDecoder().decode(bytes.slice(0,d[1])),count:d[2],error:d[3],ip:Array.from(d.slice(4,8)).join('.'),generation:u16(d,8)};
+    Views.render();return State.network;
+  },
+  async waitNetwork(mask){
+    const epoch=State.epoch,deadline=Date.now()+15000;
+    for(;;){const n=await this.networkInfo();if(!(n.flags&mask))return n;if(Date.now()>deadline)throw Error('设备仍在处理网络，请稍后重新读取');await new Promise(r=>setTimeout(r,200));if(epoch!==State.epoch)throw Error('连接已改变');}
+  },
+  async scanWifi(){
+    await this.snapshot(false);this.networkGuard();State.networkWork='scan';Views.render();
+    try{
+      await Client.request(0x20,[],{timeout:10000});const n=await this.waitNetwork(4);if(n.error===1)throw Error('扫描失败，请稍后重试');
+      const aps=[];
+      for(let index=0;index<n.count;index++){
+        const query=new Uint8Array(4);query[0]=index;put16(query,2,n.generation);
+        const first=await Client.request(0x07,query,{timeout:10000}),bytes=new Uint8Array(32);bytes.set(first.slice(4,12));
+        for(let part=1;part<Math.ceil(first[0]/8);part++){query[1]=part;bytes.set((await Client.request(0x07,query,{timeout:10000})).slice(4,12),part*8);}
+        aps.push({ssid:new TextDecoder().decode(bytes.slice(0,first[0])),rssi:first[1]<<24>>24,auth:first[2]});
+      }
+      const selected=$('wifiSsid').value;const options=[new Option('手动输入网络名称','')];
+      aps.forEach(ap=>options.push(new Option(ap.ssid+' · '+ap.rssi+' dBm'+(ap.auth?'':' · 开放')+(ap.ssid===n.ssid?' · 已保存':''),ap.ssid)));
+      $('wifiNetworks').replaceChildren(...options);$('wifiNetworks').value=aps.some(a=>a.ssid===selected)?selected:'';
+      if((n.flags&1)&&!(n.flags&2)&&aps.some(ap=>ap.ssid===n.ssid)){
+        Views.formFeedback('wifiForm','正在连接已保存网络 '+n.ssid);
+        const connected=await this.waitNetwork(16|64);
+        if(connected.error===3||!(connected.flags&2))throw Error('已保存网络连接失败，请检查网络或密码');
+        $('address').value=connected.ip;
+        Views.formFeedback('wifiForm','已自动连接 '+connected.ssid+' · '+connected.ip);
+      }else Views.formFeedback('wifiForm',aps.length?'找到 '+aps.length+' 个网络':'未发现网络，可以手动输入名称');
+    }finally{State.networkWork=null;Views.render();}
+  },
+  async saveWifi(){
+    this.networkGuard();
+    const encoder=new TextEncoder(),ssid=encoder.encode($('wifiSsid').value),password=encoder.encode($('wifiPassword').value);
+    if(!ssid.length||ssid.length>32||ssid.includes(0))throw Error('网络名称须为1—32字节');
+    if(password.length>63||password.length&&password.length<8||password.includes(0))throw Error('密码须为8—63字节，开放网络留空');
+    const name=$('wifiSsid').value,token=crypto.getRandomValues(new Uint16Array(1))[0],payload=new Uint8Array(ssid.length+password.length);payload.set(ssid);payload.set(password,ssid.length);
+    State.networkWork='save';Views.render();
+    try{
+      const begin=new Uint8Array(5);begin[1]=ssid.length;begin[2]=password.length;put16(begin,3,token);await Client.request(0x21,begin);
+      for(let offset=0;offset<payload.length;offset+=8){const count=Math.min(8,payload.length-offset),d=new Uint8Array(13);d[0]=1;d[1]=offset;d[2]=count;put16(d,3,token);d.set(payload.slice(offset,offset+count),5);await Client.request(0x21,d);}
+      const commit=new Uint8Array(5);commit[0]=2;put16(commit,3,token);await Client.request(0x21,commit);
+      const n=await this.waitNetwork(8);if(n.error===2||n.ssid!==name)throw Error('网络保存失败，请重新保存');
+      $('wifiPassword').value='';showWifiPassword(false);State.dirty.delete('wifi');
+      await Client.request(0x22);
+      if(State.link.address){const link=State.link;this.drop(link,'Wi-Fi 已保存，请让电脑连接目标网络后，填写设备 IP 重新连接');link.close();}
+      else {
+        const connected=await this.waitNetwork(16|64);
+        if(connected.error===3||!(connected.flags&2))throw Error('网络已保存，但连接失败，请检查名称和密码');
+        $('address').value=connected.ip;
+        Views.formFeedback('wifiForm','已连接 '+name+' · '+connected.ip);
+      }
+    }finally{payload.fill(0);password.fill(0);State.networkWork=null;Views.render();}
+  },
+  async output(channel,on){
+    await this.snapshot(false);this.guard(channel===5);
+    try{await Client.request(0x10,[channel,on?1:0]);}catch(error){if(!State.uncertain)await this.snapshot(false);throw error;}
+    await this.snapshot(false);if(!!(State.status.outputs&(1<<channel))!==on)throw Error('设备状态与设置不一致，请查看异常');
+  },
+  async start(kind){await this.snapshot(false);this.guard();await Client.request(0x12,[kind]);await this.snapshot(false);},
+  async stop(){await this.snapshot(false);if(State.task.kind)await Client.request(0x13);await this.snapshot(false);},
+  async save(group){
+    this.guard(group==='light');let cmd,data;
+    if(group==='exchange'||group==='topup'){
+      const kind=group==='exchange'?1:2;data=new Uint8Array(9);data[0]=kind;put16(data,1,minuteInput(group+'Time'));put16(data,3,numberInput(group+'Days'));
+      put16(data,5,kind===1?numberInput('exchangeDrain'):State.config.topup.drain);put16(data,7,numberInput(group+'Fill'));cmd=0x14;
+    }else if(group==='light'){
+      const on=minuteInput('lightOn'),off=minuteInput('lightOff');if(on===off)throw Error('开启和关闭时间不能相同');data=new Uint8Array(4);put16(data,0,on);put16(data,2,off);cmd=0x16;
+    }else{data=new Uint8Array(8);for(let i=0;i<4;i++)put16(data,i*2,numberInput('timeout'+i));cmd=0x17;}
+    await Client.request(cmd,data);await this.snapshot(true);State.dirty.delete(group);Views.render();
+  },
+  async reset(kind){this.guard();await Client.request(0x15,[kind]);await this.snapshot(false);},
+  async clock(utc){this.guard();if(!Number.isInteger(utc)||utc<946656000||utc>=4102416000)throw Error('时间超出2000—2099年的范围');const a=new Uint8Array(4);put32(a,0,utc);await Client.request(0x11,a);await this.snapshot(true);},
+  async clear(){await Client.request(0x18);await this.snapshot(false);},
+  async retry(){
+    const failure=State.lastFailure;if(!failure)throw Error('没有可重发的请求');let error;
+    try{await Client.request(failure.frame[2],[],{original:failure.frame,recovery:true});}catch(e){error=e;}
+    if(error&&State.lastFailure===failure)throw error;
+    State.lastFailure=null;await this.snapshot(true,true);if(error)throw error;
+  },
+  async connect(){
+    if(State.connecting||State.link)return;State.connecting=true;State.epoch++;resetDevice();Views.clearNotice();$('connectionError').hidden=true;Views.render();let link;
+    try{const mode=$('transport').value;link=mode==='wifi'?await Transport.wifi($('address').value):await Transport.ble();State.link=link;await this.snapshot(true);
+      storage.set('aq.transport',mode);if(link.address){storage.set('aq.address',link.address);$('address').value=link.address;}
+      Journal.add('连接',mode==='wifi'?link.address:link.name);$('connectionDialog').close();
+    }catch(error){if(State.link===link&&link){State.link=null;State.epoch++;Client.cancel('连接失败');resetDevice();}link?.close();$('connectionError').textContent=error.message;$('connectionError').hidden=false;Journal.add('错误',error.message);}
+    finally{State.connecting=false;Views.render();}
+  },
+  drop(link,reason){if(State.link!==link)return;State.link=null;State.epoch++;Client.cancel(reason);resetDevice();Views.notice(reason);Journal.add('断开',reason);Views.render();},
+  async poll(){
+    if(!State.link||State.connecting||State.busy||State.refreshPromise||State.uncertain||!State.loaded)return;
+    const promise=(async()=>{await this.snapshot(false);if(!$('settings').hidden)await this.networkInfo();})().catch(error=>{if(State.link)Views.notice(error.message);});State.refreshPromise=promise;
+    try{await promise;}finally{if(State.refreshPromise===promise)State.refreshPromise=null;}
+  }
+};
+
+// 5. 视图：正常页不展示引脚/协议说明，只有异常时展示异常区域。
+const Views={toastTimer:null,
+  notice(text){$('noticeText').textContent=text;$('notice').hidden=false;$('recover').hidden=!State.link;$('dismissNotice').hidden=State.uncertain;},
+  clearNotice(){$('notice').hidden=true;},
+  toast(text){clearTimeout(this.toastTimer);$('toast').textContent=text;$('toast').hidden=false;this.toastTimer=setTimeout(()=>$('toast').hidden=true,2400);},
+  formError(form,text){const e=$(form).querySelector('.form-message');e.classList.remove('success');e.textContent=text;e.hidden=false;},
+  formFeedback(form,text){const e=$(form).querySelector('.form-message');e.classList.add('success');e.textContent=text;e.hidden=false;},
+  fill(group,values){if(State.dirty.has(group))return;for(const [id,value] of Object.entries(values))$(id).value=value;},
+  render(){
+    const s=State.status,t=State.task,c=State.config;
+    const locked=State.busy||State.connecting,known=!!State.link&&State.loaded&&!!s&&!!t&&!State.uncertain;
+    const idle=known&&!locked&&!t.kind,editable=idle&&!s.fault,lampEditable=idle&&(!s.fault||waterFault(s.fault));
+    $('connectionButton').classList.toggle('connected',!!State.link);
+    $('connectionText').textContent=State.connecting?'正在连接':State.link?($('transport').value==='wifi'?'Wi-Fi 已连接':'蓝牙 已连接'):'连接设备';
+    $('connect').disabled=State.connecting;$('connect').hidden=!!State.link;$('connect').textContent=State.connecting?'正在连接':'连接';
+    $('disconnect').hidden=!State.link;$('transport').disabled=!!State.link||State.connecting;$('address').disabled=!!State.link||State.connecting;
+    $('addressField').hidden=$('transport').value==='ble';
+    for(const id of ['refresh','debugRefresh','recover'])$(id).disabled=!State.link||locked;
+    $('startExchange').disabled=$('startTopup').disabled=!editable;
+    $('stop').disabled=!known||locked||!t.kind;
+    $('syncRtc').disabled=!editable;
+    $('retry').disabled=!State.link||locked||!State.lastFailure;
+    document.querySelectorAll('[data-channel]').forEach(e=>e.disabled=Number(e.dataset.channel)===5?!lampEditable:!editable);
+    document.querySelectorAll('[data-group]').forEach(form=>{const enabled=form.dataset.group==='light'?lampEditable:editable;form.querySelectorAll('input,button').forEach(e=>e.disabled=!enabled);});
+    const networkEditable=known&&!locked&&!t.kind;
+    $('wifiForm').querySelectorAll('input,select,button').forEach(e=>e.disabled=!networkEditable);
+    $('scanWifi').textContent=State.networkWork==='scan'?'正在扫描…':'扫描附近网络';
+    $('saveWifi').textContent=State.networkWork==='save'?'正在连接…':'保存并连接';
+    const n=State.network;
+    $('wifiStatus').textContent=!State.link?'尚未连接设备':!n?'尚未读取网络':(n.flags&1?'已保存：'+n.ssid:'尚未配置网络')+(n.flags&2?' · IP '+n.ip:n.flags&64?' · 正在连接':n.error===3?' · 未连接，请检查网络':' · 未连接');
+    if(n&&!State.dirty.has('wifi'))$('wifiSsid').value=n.ssid;
+    $('wifiSsidField').hidden=!!$('wifiNetworks').value;
+    $('rtcForm').querySelectorAll('input,button').forEach(e=>e.disabled=!editable);
+    document.querySelectorAll('[data-dirty]').forEach(e=>e.hidden=!State.dirty.has(e.dataset.dirty));
+    $('liveData').classList.toggle('stale',State.uncertain);
+    $('freshness').textContent=State.uncertain?'状态未确认':State.updated?'更新于 '+new Date(State.updated).toLocaleTimeString('zh-CN',{hour12:false}):State.connecting?'正在读取设备':'尚未连接';
+    $('footerState').textContent=State.link?'北京时间':'未连接设备';
+    if(State.uncertain)this.notice('未收到可靠的设备状态，请重新读取后再操作');
+    $('temperature').textContent=s?(s.flags&1?s.temperature.toFixed(2):'无效'):'--';$('temperatureUnit').hidden=!s||!(s.flags&1);
+    const clock=s?Protocol.beijingParts(s.now):null;
+    $('clock').textContent=clock?clock.time:'--:--:--';$('clockDate').textContent=clock?clock.date:'设备时间';$('settingsClock').textContent=clock?clock.time:'--:--:--';$('settingsDate').textContent=clock?clock.date:'--';
+    $('taskName').textContent=t?(['待机','换水中','补水中'][t.kind]||'未知任务'):'未连接';
+    $('stage').textContent=t?(t.kind?(stageNames[t.stage]||'正在执行'):s.fault?'任务已停止':'等待下次计划'):'--';
+    $('taskSource').hidden=!t||!t.kind;$('taskSource').textContent=t?.source?'定时':'手动';$('taskSource').classList.toggle('active',!!t?.kind);
+    $('counts').hidden=!t||!t.kind;$('drainProgress').hidden=t?.kind!==1;
+    $('drainCount').textContent=t?`${t.drainDone} / ${t.drainTarget} 箱`:'--';$('fillCount').textContent=t?`${t.fillDone} / ${t.fillTarget} 箱`:'--';
+    for(let i=0;i<6;i++){const on=!!s&&!!(s.outputs&(1<<i)),e=$('output'+i);e.classList.toggle('on',on);e.querySelector('small').textContent=s?(on?'已开启':'已关闭'):'未知';e.querySelector('button').setAttribute('aria-checked',String(on));}
+    for(let i=0;i<4;i++){const valid=!!s&&!!(s.flags&2),wet=valid&&!!(s.levels&(1<<i)),e=$('level'+i);e.classList.toggle('wet',wet);e.querySelector('span').textContent=(i%2?'低位 ':'高位 ')+(valid?(wet?'有水':'无水'):'--');$('raw'+i).textContent=s?String((s.raw>>i)&1):'--';}
+    // 两个数字探头只表示三个区间，竖条不表示连续测量值。
+    for(let i=0;i<2;i++){
+      const valid=!!s&&!!(s.flags&2),high=valid&&!!(s.levels&(1<<(i*2))),low=valid&&!!(s.levels&(1<<(i*2+1)));
+      const state=!valid?'unknown':high?(low?'full':'conflict'):(low?'middle':'empty');
+      const label={unknown:'未知',empty:'低位以下',middle:'高低位之间',full:'已到高位',conflict:'探头矛盾'}[state];
+      const gauge=$('tankGauge'+i);gauge.dataset.level=state;gauge.setAttribute('aria-label',(i?'补水箱':'排水箱')+'：'+label);$('tankState'+i).textContent=label;
+    }
+    $('keys').textContent=s?([0,1,2,3].filter(i=>s.keys&(1<<i)).map(i=>'KEY'+(i+1)).join('、')||'未按下'):'--';
+    $('statusLed').textContent=s?(s.flags&4?'亮':'灭'):'--';$('filterTarget').textContent=t?(t.filterTarget?'开启':'关闭'):'--';$('levelValidity').textContent=s?(s.flags&2?'已稳定':'尚未稳定'):'--';
+    for(const group of ['exchange','topup'])if(c[group]){const a=c[group];const values={[group+'Time']:minuteText(a.minute),[group+'Days']:a.days,[group+'Fill']:a.fill};if(group==='exchange')values.exchangeDrain=a.drain;this.fill(group,values);}
+    if(c.light)this.fill('light',{lightOn:minuteText(c.light.on),lightOff:minuteText(c.light.off)});
+    if(c.timeout)this.fill('timeout',Object.fromEntries(c.timeout.map((n,i)=>['timeout'+i,n])));
+    $('exchangeNext').textContent=dateText(c.exchange?.next);$('topupNext').textContent=dateText(c.topup?.next);
+    const warnings=s?warningNames.filter((_,i)=>s.warnings&(1<<i)):[];
+    $('alertPanel').hidden=!s||(!s.fault&&!warnings.length);$('alertPanel').classList.toggle('fatal',!!s?.fault);
+    $('alertTitle').textContent=s?.fault?(faultNames[s.fault]||'设备异常')+(warnings.length?' · '+warnings.join('、'):''):warnings.join('、');
+    $('alertDetail').textContent=s?.fault?(waterFault(s.fault)?'水路已停止，灯光继续运行。清除后不会自动重启任务。':'任务已停止，请处理原因后清除异常。'):warnings.length?'通信恢复后自动解除。':'';
+    $('clearFault').hidden=!s?.fault;$('clearFault').disabled=!idle||!s.fault;
+  },
+  page(name){document.querySelectorAll('.page').forEach(e=>e.hidden=e.id!==name);document.querySelectorAll('[data-page]').forEach(e=>{const active=e.dataset.page===name;e.classList.toggle('active',active);if(active)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current');});}
+};
+
+// 6. 事件与运行入口：用户操作等待当前查询结束，防止旧快照覆盖新操作。
+const App={
+  async run(fn,{form=null,success='',recovery=false}={}){
+    if(State.busy||State.connecting)return;State.busy=true;Views.clearNotice();if(form)$(form).querySelector('.form-message').hidden=true;Views.render();
+    const epoch=State.epoch;
+    try{if(State.refreshPromise)await State.refreshPromise;if(epoch!==State.epoch)throw Error('连接已改变');if(!State.link)throw Error('请先连接设备');if(State.uncertain&&!recovery)throw Error('请先重新读取设备状态');await fn();if(success)Views.toast(success);}
+    catch(error){if(form)Views.formError(form,error.message);else Views.notice(error.message);Journal.add('错误',error.message);}
+    finally{State.busy=false;Views.render();}
+  },
+  mount(){
+    outputNames.forEach((name,i)=>{const e=document.createElement('section');e.className='output';e.id='output'+i;e.innerHTML=`<div class="output-info"><strong>${name}</strong><small>未知</small></div><button class="switch" type="button" role="switch" aria-label="${name}" aria-checked="false" data-channel="${i}"></button>`;$('outputs').append(e);
+      e.querySelector('button').addEventListener('click',()=>{const on=!(State.status.outputs&(1<<i));this.run(()=>Actions.output(i,on));});});
+    levelNames.forEach((name,i)=>{const e=document.createElement('div');e.className='debug-row';e.innerHTML=`<span>${name} <code>TP0${i}</code></span><code id="raw${i}">--</code>`;$('rawLevels').append(e);});
+    document.querySelectorAll('[data-page]').forEach(e=>e.addEventListener('click',()=>{Views.page(e.dataset.page);if(e.dataset.page!=='control'&&State.link&&!State.uncertain)this.run(async()=>{await Actions.snapshot(true);if(e.dataset.page==='settings')await Actions.networkInfo();});}));
+    $('connectionButton').addEventListener('click',()=>{$('connectionError').hidden=true;$('connectionDialog').showModal();});
+    $('closeConnection').addEventListener('click',()=>$('connectionDialog').close());$('transport').addEventListener('change',()=>Views.render());
+    $('connect').addEventListener('click',()=>Actions.connect());
+    $('disconnect').addEventListener('click',()=>{const link=State.link;if(link){Actions.drop(link,'已断开连接');link.close();}$('connectionDialog').close();});
+    const refresh=()=>this.run(async()=>{await Actions.snapshot(true,true);if(!$('settings').hidden)await Actions.networkInfo();},{recovery:true});
+    for(const id of ['refresh','debugRefresh','recover'])$(id).addEventListener('click',refresh);
+    $('dismissNotice').addEventListener('click',()=>Views.clearNotice());
+    $('startExchange').addEventListener('click',()=>this.run(()=>Actions.start(1)));
+    $('startTopup').addEventListener('click',()=>this.run(()=>Actions.start(2)));
+    $('stop').addEventListener('click',()=>this.run(()=>Actions.stop()));
+    $('clearFault').addEventListener('click',()=>this.run(()=>Actions.clear(),{success:'异常已清除'}));
+    for(const group of ['exchange','topup','light','timeout']){
+      const form=$(group+'Form');form.addEventListener('input',()=>{State.dirty.add(group);form.querySelector('.form-message').hidden=true;Views.render();});
+      form.addEventListener('submit',event=>{event.preventDefault();this.run(()=>Actions.save(group),{form:form.id,success:'已保存'});});
+    }
+    for(const [id,kind] of [['resetExchange',1],['resetTopup',2]])$(id).addEventListener('click',()=>this.run(()=>Actions.reset(kind),{form:kind===1?'exchangeForm':'topupForm',success:'周期已重置'}));
+    $('toggleWifiPassword').addEventListener('click',()=>showWifiPassword($('wifiPassword').type==='password'));
+    $('scanWifi').addEventListener('click',()=>this.run(()=>Actions.scanWifi(),{form:'wifiForm'}));
+    $('wifiNetworks').addEventListener('change',()=>{if($('wifiNetworks').value)$('wifiSsid').value=$('wifiNetworks').value;State.dirty.add('wifi');$('wifiForm').querySelector('.form-message').hidden=true;Views.render();});
+    $('wifiForm').addEventListener('input',()=>{State.dirty.add('wifi');$('wifiForm').querySelector('.form-message').hidden=true;});
+    $('wifiForm').addEventListener('submit',event=>{event.preventDefault();this.run(()=>Actions.saveWifi(),{form:'wifiForm'});});
+    $('syncRtc').addEventListener('click',()=>this.run(()=>Actions.clock(Math.floor(Date.now()/1000)),{success:'设备时间已同步'}));
+    $('rtcForm').addEventListener('submit',event=>{event.preventDefault();this.run(()=>Actions.clock(Protocol.rtcValue($('rtcInput').value)),{form:'rtcForm',success:'设备时间已设置'});});
+    $('retry').addEventListener('click',()=>this.run(()=>Actions.retry(),{recovery:true,success:'已重新读取设备状态'}));
+    $('clearLog').addEventListener('click',()=>{Journal.lines.length=0;Journal.render();});
+    $('exportLog').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([Journal.lines.join('\n')],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='aquarium-'+Date.now()+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+    $('transport').value=storage.get('aq.transport')==='ble'?'ble':'wifi';$('address').value=storage.get('aq.address')||'';
+    const now=Protocol.beijingParts(Math.floor(Date.now()/1000));$('rtcInput').value=now.date+'T'+now.time;
+    Views.render();setInterval(()=>Actions.poll(),1000);
+  }
+};
+// 纯协议工具也用于离线验证；测试传输不打包进交付文件。
+window.AquariumProtocol=Protocol;
+App.mount();
+</script>
+</body>
+</html>
